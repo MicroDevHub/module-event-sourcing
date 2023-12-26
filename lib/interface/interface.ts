@@ -16,6 +16,7 @@ export interface IProducerInstance {
 
 export interface IConsumerInstance {
     connect(): void;
-    subcribe(): void;
+    read(topic: string , fromBegin: boolean): void;
+    reads(topics: string[] , fromBegin: boolean): void;
     disconnect(): void;
 }

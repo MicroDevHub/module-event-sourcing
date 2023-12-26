@@ -1,7 +1,7 @@
-import { Consumer, ConsumerConfig, Kafka, KafkaConfig } from "kafkajs";
+import { Consumer, ConsumerConfig, EachMessagePayload, Kafka, KafkaConfig } from "kafkajs";
 import { IConsumerInstance } from "../interface/interface";
 
-export class ConsumerIntance implements IConsumerInstance{
+export class ConsumerInstance implements IConsumerInstance{
     private _kafka: Kafka;
     private _consumer: Consumer;
 
@@ -14,8 +14,20 @@ export class ConsumerIntance implements IConsumerInstance{
         this._consumer.connect();
     }
 
-    subcribe(): void {
-        throw new Error("Method not implemented.");
+    read(topic: string , fromBegin: boolean): void {
+        this._consumer.subscribe({topic: topic, fromBeginning: fromBegin})
+
+        this._consumer.run({
+            eachMessage: async ({ topic, partition, message }: EachMessagePayload) => {
+                console.log({
+                  value: message.value?.toString(),
+                })
+              },
+        })
+    }
+
+    reads(topics: string[] , fromBegin: boolean) {
+        this._consumer.subscribe({topics: topics, fromBeginning: fromBegin})
     }
 
     disconnect(): void {

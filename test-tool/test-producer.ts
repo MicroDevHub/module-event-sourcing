@@ -5,37 +5,33 @@ const clientId = "my-app"
 const brokers = ["localhost:9092"]
 const topic = "send-message"
 
-const kafka = new KafkaInstance(clientId, brokers)
+const kafka = new KafkaInstance(clientId, brokers, {host: "http://localhost:8081"})
 
 const producer = kafka.producer()
-
-
-// for(let i = 0; i <= 10; i++) {
-//     try {
-//         producer.connect()
-//         console.log(`ok ${i}`)
-//         producer.send({
-//             topic: topic,
-//             message: [{value: `quan + ${i}`}],
-//         })
-//     } catch (err) {
-//         console.log(err)
-//     }
-// }
 
 const produce = async() => {
     await producer.connect()
     let i = 1
+    const schema = `
+        {
+            "type": "record",
+            "name": "RandomTest12",
+            "namespace": "examples",
+            "fields": [{ "type": "string", "name": "fullName" }]
+        }
+        `
+
+    const payload = {"fullName": `quan + ${i}`}
+    const subject = 'quan-tran'
     setInterval(async() => {
         try {
             await producer.send({
                 topic,
-                message: [
+                message: 
                     {
-                        value: `quan ${i}`
+                        value: {fullName: `quan ${i}`}
                     }
-                ]
-            })
+            }, schema)
 
             console.log(`quan ${i}`)
 

@@ -9,6 +9,6 @@
   },
   "include": [
     "lib/**/*.ts",
-    "test/**/*.ts"
+    "test-tool/**/*.ts"
   ]
 }

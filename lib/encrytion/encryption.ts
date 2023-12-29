@@ -1,7 +1,6 @@
 import { IEncryption } from "../interface/interface";
 import * as crypto from "crypto";
 
-const secret = 'dfdshjgk'
 const secretKey = '67fms84bfjsyegwufbwjf8bsjhdffsw3'
 const algorithm = 'aes-256-ctr';
 const iv = crypto.randomBytes(16)

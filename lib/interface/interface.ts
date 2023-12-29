@@ -1,4 +1,4 @@
-import { CompressionTypes, IHeaders, Message } from "kafkajs";
+import { CompressionTypes, IHeaders } from "kafkajs";
 
 export interface IMessage {
     key?: Buffer | string | null
@@ -8,7 +8,7 @@ export interface IMessage {
     timestamp?: string
   }
 
-export interface ISendMessage {
+export interface IPublishMessage {
     topic: string,
     message: IMessage,
     acks?: number,
@@ -18,13 +18,13 @@ export interface ISendMessage {
 
 export interface IProducerInstance {
     connect(): void;
-    send(message: ISendMessage, schema: string): void;
+    send(message: IPublishMessage, schema: string): Promise<void>;
     disconnect(): void;
 }
 
 export interface IConsumerInstance {
     connect(): void;
-    read(topic: string , fromBegin: boolean): void;
+    read(topic: string , fromBegin: boolean): Promise<any>;
     reads(topics: string[] , fromBegin: boolean): void;
     disconnect(): void;
 }

@@ -1,5 +1,4 @@
 import { KafkaInstance } from "../lib/kafka-service";
-// const KafkaInstance = require("../lib/kafka-instance");
 
 const clientId = "my-app"
 const brokers = ["localhost:9092"]
@@ -41,10 +40,7 @@ const produce = async() => {
         }
     }, 1000)
     
-    // await producer.disconnect()
 }
 
 produce()
-
-// console.log('fsdfhjsdfgsdf')
 

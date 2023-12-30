@@ -26,8 +26,8 @@ export class ProducerInstance implements IProducerInstance{
 
             this._producer.send({
                 topic: message.topic,
-                messages: [{value: encodeMessage}],
-                acks: message.acks || 1,
+                messages: [{...message.message,value: encodeMessage}],
+                acks: message.acks,
                 timeout: message.timeout,
                 compression: message.compression
             })
@@ -37,6 +37,8 @@ export class ProducerInstance implements IProducerInstance{
     }
     
     disconnect(): void {
-        this._producer.disconnect();
+        if(this._producer) {
+            this._producer.disconnect();
+        }
     }
 }

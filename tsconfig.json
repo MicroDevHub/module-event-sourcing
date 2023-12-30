@@ -1,14 +1,17 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "outDir": "dist",
+    "lib": ["ESNext"],
+    "target": "esnext",
+    "module": "CommonJS",
+    "outDir": "build",
     "strict": true,
+    "skipLibCheck": true,
+    "moduleDetection": "force",
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "declaration": true,
   },
   "include": [
     "lib/**/*.ts",
-    "test-tool/**/*.ts"
-  ]
+  ],
+  "exclude": ["node_modules", "build"]
 }

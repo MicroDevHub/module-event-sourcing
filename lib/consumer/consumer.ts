@@ -1,5 +1,5 @@
-import { Consumer, ConsumerConfig, EachMessagePayload, Kafka, KafkaConfig } from "kafkajs";
-import { IConsumerInstance } from "../interface/interface";
+import { Consumer, ConsumerConfig, EachBatchPayload, Kafka, KafkaConfig } from "kafkajs";
+import { IConsumerHandler, IConsumerInstance } from "../interface/interface";
 import { SchemaRegistry } from "@kafkajs/confluent-schema-registry";
 import { SchemaRegistryAPIClientArgs } from "@kafkajs/confluent-schema-registry/dist/api";
 
@@ -18,32 +18,41 @@ export class ConsumerInstance implements IConsumerInstance{
         this._consumer.connect();
     }
 
-    read(topic: string , fromBegin: boolean): Promise<any> {
-        this._consumer.subscribe({topic: topic, fromBeginning: fromBegin})
+    async reads(consumerHandler: IConsumerHandler[]): Promise<void> {
 
-        return this._consumer.run({
-            eachMessage: async ({ topic, partition, message }: EachMessagePayload) => {
-                try {
-                    const originalValue = message.value
-                    
-                    if(originalValue) {
-                        const decoded =  await this._schemaRegistry.decode(originalValue)
-                        console.log(decoded)
-                    }
-            
-                  } catch (error) {
-                    console.error('Error processing message:', error);
-                  }
-              },
+        consumerHandler.forEach((item) => {
+            this._consumer.subscribe({
+                topics: item.topics,
+                fromBeginning: item.fromBeginning
+            })
         })
-    }
 
-    reads(topics: string[] , fromBegin: boolean) {
-        this._consumer.subscribe({topics: topics, fromBeginning: fromBegin})
+        await this._consumer.run({
+            autoCommit: true,
+            eachBatchAutoResolve: true,
+            eachBatch: async (payload: EachBatchPayload) => {
+                try {
+                    consumerHandler.map(async (item) => {
+                        if (item.topics.includes(payload.batch.topic)) {
+                            await item.handler(payload);
+                        }
+                    })
+                } catch (error) {
+                    console.error('Error processing message:', error);
+                }
+            },
+        })
+
     }
 
     disconnect(): void {
-        this._consumer.disconnect();
+        if(this._consumer) {
+            this._consumer.disconnect();
+        }
+    }
+
+    consumerSchemaRegistry(): SchemaRegistry {
+        return this._schemaRegistry;
     }
 
 }

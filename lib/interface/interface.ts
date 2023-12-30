@@ -1,4 +1,5 @@
-import { CompressionTypes, IHeaders } from "kafkajs";
+import { SchemaRegistry } from "@kafkajs/confluent-schema-registry";
+import { CompressionTypes, EachBatchPayload, IHeaders } from "kafkajs";
 
 export interface IMessage {
     key?: Buffer | string | null
@@ -24,12 +25,18 @@ export interface IProducerInstance {
 
 export interface IConsumerInstance {
     connect(): void;
-    read(topic: string , fromBegin: boolean): Promise<any>;
-    reads(topics: string[] , fromBegin: boolean): void;
+    reads(consumerHandler: IConsumerHandler[]): Promise<void>;
     disconnect(): void;
+    consumerSchemaRegistry(): SchemaRegistry | undefined;
 }
 
 export interface IEncryption {
     encrypt(encryptData: string): string;
     decrypt(encryptedData: string | any): any;
+}
+
+export interface IConsumerHandler {
+    topics: string[];
+    fromBeginning: boolean;
+    handler: (payload: EachBatchPayload) => Promise<any>
 }

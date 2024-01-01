@@ -1,7 +1,7 @@
 import { Kafka, KafkaConfig, Producer } from "kafkajs";
-import { IPublishMessage, IProducerInstance } from "../interface/interface";
 import { SchemaRegistry, SchemaType } from "@kafkajs/confluent-schema-registry"
 import { SchemaRegistryAPIClientArgs } from "@kafkajs/confluent-schema-registry/dist/api";
+import { IProducerInstance, IPublishMessage } from "../index";
 
 
 export class ProducerInstance implements IProducerInstance{
@@ -15,30 +15,54 @@ export class ProducerInstance implements IProducerInstance{
         this._schemaRegistry = new SchemaRegistry(schemaRegistryAPIClientArgs);
     }
 
-    connect(): void {
-        this._producer.connect();
+    /**
+     * Start connect to kafka
+     * 
+     * @async
+     * @function connect
+     * @returns {Promise<void>}
+     */
+    public async connect(): Promise<void> {
+        await this._producer.connect();
     }
 
-    async send(message: IPublishMessage, schema: string): Promise<void> {
+    /**
+     * Encode the incoming message using the schema-registry.
+     * After, transmit the processed message to a designated Kafka follow-up topic.
+     * 
+     * @async 
+     * @function send
+     * @param {IPublishMessage} publishMessages 
+     * @param {string} schema 
+     * @returns {Promise<void>}
+     */
+    public async send(publishMessages: IPublishMessage, schema: string): Promise<void> {
         try {
-            const registried = await this._schemaRegistry.register({type: SchemaType.AVRO, schema})
-            const encodeMessage = await this._schemaRegistry.encode(registried.id, message.message.value)
+            const registeredSchema = await this._schemaRegistry.register({type: SchemaType.AVRO, schema})
+            const encodeMessage = await this._schemaRegistry.encode(registeredSchema.id, publishMessages.message.value)
 
-            this._producer.send({
-                topic: message.topic,
-                messages: [{...message.message,value: encodeMessage}],
-                acks: message.acks,
-                timeout: message.timeout,
-                compression: message.compression
+            await this._producer.send({
+                topic: publishMessages.topic,
+                messages: [{...publishMessages.message,value: encodeMessage}],
+                acks: publishMessages.acks,
+                timeout: publishMessages.timeout,
+                compression: publishMessages.compression
             })
         } catch (error) {
             throw new Error(`Send: ${error}`);
         }
     }
     
-    disconnect(): void {
+    /**
+     * Disconnect from kafka
+     * 
+     * @async
+     * @function disconnect
+     * @returns {Promise<void>}
+     */
+    public async disconnect(): Promise<void> {
         if(this._producer) {
-            this._producer.disconnect();
+            await this._producer.disconnect();
         }
     }
 }

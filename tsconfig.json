@@ -12,6 +12,7 @@
   },
   "include": [
     "lib/**/*.ts",
+    "test-tool/**/*.ts",
   ],
   "exclude": ["node_modules", "build"]
 }

@@ -1,8 +1,10 @@
 import { ProducerInstance } from "./producer/producer";
 import { ConsumerInstance } from "./consumer/consumer";
 import { SchemaRegistryAPIClientArgs } from "@kafkajs/confluent-schema-registry/dist/api";
+import { ConsumerConfig } from "kafkajs";
+import { IKafkaInstance } from "./index";
 
-export class KafkaInstance {
+export class KafkaInstance implements IKafkaInstance {
     private _clientId: string;
     private _brokers: string[];
     private _schemaRegistryAPIClientArgs: SchemaRegistryAPIClientArgs;
@@ -13,19 +15,25 @@ export class KafkaInstance {
         this._schemaRegistryAPIClientArgs = schemaRegistryAPIClientArgs;
     }
 
+    /**
+     * Creates and returns a Kafka producer instance.
+     * @function producer
+     * @returns {ProducerInstance} A Kafka producer instance.
+     */
     producer(): ProducerInstance {
         return new ProducerInstance({clientId: this._clientId, brokers: this._brokers}, this._schemaRegistryAPIClientArgs);
     }
 
-    consumer(): ConsumerInstance {
+    /**
+     * Creates and returns a Kafka consumer instance with the specified configuration.
+     * @function consumer
+     * @param {ConsumerConfig} consumerConfig Configuration options for the Kafka consumer.
+     * @returns {ConsumerInstance} A Kafka consumer instance.
+     */
+    consumer(consumerConfig: ConsumerConfig): ConsumerInstance {
         return new ConsumerInstance({
             clientId: this._clientId,
-            brokers: this._brokers}, 
-            {
-                groupId: this._clientId,
-                minBytes: 5,
-                maxBytes: 1e6,
-                maxWaitTimeInMs: 3000,
-            }, this._schemaRegistryAPIClientArgs);
+            brokers: this._brokers},
+            consumerConfig, this._schemaRegistryAPIClientArgs);
     }
 }

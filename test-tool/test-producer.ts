@@ -2,7 +2,6 @@ import { KafkaInstance } from "../lib/kafka-service";
 
 const clientId = "my-app"
 const brokers = ["localhost:9092"]
-const topic = "send-message"
 
 const kafka = new KafkaInstance(clientId, brokers, {host: "http://localhost:8081"})
 
@@ -22,14 +21,12 @@ const produce = async() => {
         }
         `
 
-    const payload = {"fullName": `quan + ${i}`}
-    const subject = 'quan-tran'
     setInterval(async() => {
         try {
             if(topicCount > 10) {
                 topicCount = 1
             }
-            
+
             await producer.send({
                 topic: `topic-test-${topicCount}`,
                 message: 

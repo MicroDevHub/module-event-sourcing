@@ -1,12 +1,12 @@
 {
-    "name": "kafka-event-sourcing-2",
+    "name": "kafka-event-sourcing",
     "private": false,
-    "version": "1.0.1",
+    "version": "1.0.0",
     "description": "This is a package to support process publish and subscribe message. When We work with Kafka event driven.",
-    "main": "build/lib/index.js",
-    "types": "build/lib/index.d.ts",
+    "main": "build/index.js",
+    "types": "build/index.d.ts",
     "scripts": {
-        "build": "npx tsc",
+        "build": "tsc",
         "start-producer": "node build/test-tool/test-producer.js",
         "start-consumer": "node build/test-tool/test-consumer.js"
     },
@@ -29,14 +29,11 @@
     ],
     "dependencies": {
         "@kafkajs/confluent-schema-registry": "^3.3.0",
-        "dotenv": "^16.3.1",
         "kafkajs": "^2.2.4",
         "ts-node": "^10.9.2"
     },
     "devDependencies": {
         "@types/node": "^20.10.5",
-        "crypto-js": "^4.2.0",
-        "ts-node-dev": "^2.0.0",
         "typescript": "^5.3.3"
     }
 }

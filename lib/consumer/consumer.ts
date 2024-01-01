@@ -1,7 +1,7 @@
-import { Consumer, ConsumerConfig, EachBatchPayload, Kafka, KafkaConfig } from "kafkajs";
-import { IConsumerHandler, IConsumerInstance } from "../interface/interface";
+import { Consumer, ConsumerConfig, EachMessagePayload, Kafka, KafkaConfig } from "kafkajs";
 import { SchemaRegistry } from "@kafkajs/confluent-schema-registry";
 import { SchemaRegistryAPIClientArgs } from "@kafkajs/confluent-schema-registry/dist/api";
+import { IConsumerHandler, IConsumerInstance, IConsumerRunConfig } from "../index";
 
 export class ConsumerInstance implements IConsumerInstance{
     private _kafka: Kafka;
@@ -14,13 +14,30 @@ export class ConsumerInstance implements IConsumerInstance{
         this._schemaRegistry = new SchemaRegistry(schemaRegistryAPIClientArgs);
     }
 
-    connect(): void {
-        this._consumer.connect();
+    /**
+     * Start connect to kafka
+     * 
+     * @async
+     * @function connect
+     * @returns {Promise<void>}
+     */
+    public async connect(): Promise<void> {
+       await this._consumer.connect();
     }
 
-    async reads(consumerHandler: IConsumerHandler[]): Promise<void> {
+    /**
+     * Read all messages from multiple topic in kafka. 
+     * Can customize business logic in handler function as you wish.
+     * 
+     * @async
+     * @function reads
+     * @param {IConsumerRunConfig} consumerRunConfig
+     * @param {IConsumerHandler[]} consumerHandlers
+     * @returns {Promise<void>}
+     */
+    public async reads(consumerRunConfig: IConsumerRunConfig, consumerHandlers: IConsumerHandler[]): Promise<void> {
 
-        consumerHandler.forEach((item) => {
+        consumerHandlers.forEach((item) => {
             this._consumer.subscribe({
                 topics: item.topics,
                 fromBeginning: item.fromBeginning
@@ -28,15 +45,16 @@ export class ConsumerInstance implements IConsumerInstance{
         })
 
         await this._consumer.run({
-            autoCommit: true,
-            eachBatchAutoResolve: true,
-            eachBatch: async (payload: EachBatchPayload) => {
+            ...consumerRunConfig,
+            eachMessage: async (payload: EachMessagePayload) => {
                 try {
-                    consumerHandler.map(async (item) => {
-                        if (item.topics.includes(payload.batch.topic)) {
-                            await item.handler(payload);
-                        }
+                    const consumerHandler = consumerHandlers.find((item) => {
+                        return item.topics.includes(payload.topic)
                     })
+
+                    if(consumerHandler) {
+                       await consumerHandler.handler(payload)
+                    }
                 } catch (error) {
                     console.error('Error processing message:', error);
                 }
@@ -45,13 +63,26 @@ export class ConsumerInstance implements IConsumerInstance{
 
     }
 
-    disconnect(): void {
+    /**
+     * Disconnect from kafka
+     * 
+     * @async
+     * @function disconnect
+     * @returns {Promise<void>}
+     */
+    public async disconnect(): Promise<void> {
         if(this._consumer) {
-            this._consumer.disconnect();
+            await this._consumer.disconnect();
         }
     }
 
-    consumerSchemaRegistry(): SchemaRegistry {
+    /**
+     * Get schema registry
+     * 
+     * @function consumerSchemaRegistry
+     * @returns {SchemaRegistry}
+     */
+    public getSchemaRegistry(): SchemaRegistry {
         return this._schemaRegistry;
     }
 

@@ -1,18 +1,20 @@
-import { EachBatchPayload, EachMessagePayload } from "kafkajs"
-import { IConsumerHandler } from "../lib/interface/interface"
-import { KafkaInstance } from "../lib/kafka-service"
+import { EachMessagePayload } from "kafkajs";
+import { IConsumerHandler } from "../lib/interface/interface";
+import { KafkaInstance } from "../lib/kafka-service";
 
-const clientId = "my-app"
-const brokers = ["localhost:9092"]
+const clientId = "my-app";
+const brokers = ["localhost:9092"];
+const schemaRegistry = {host: "http://localhost:8081"};
 
-const kafka = new KafkaInstance(clientId, brokers, {host: "http://localhost:8081"})
+const kafka = new KafkaInstance(clientId, brokers, schemaRegistry);
 
 const consumer = kafka.consumer({
     groupId: clientId,
     minBytes: 5,
     maxBytes: 1e6,
     maxWaitTimeInMs: 3000,
-})
+});
+
 consumer.connect();
 
 const testhandler: IConsumerHandler[] = [
@@ -48,4 +50,4 @@ const testhandler: IConsumerHandler[] = [
     },
 ]
 
-consumer.reads({autoCommit: true},testhandler)
+consumer.reads({autoCommit: true},testhandler);

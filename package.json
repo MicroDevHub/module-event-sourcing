@@ -29,11 +29,11 @@
     ],
     "dependencies": {
         "@kafkajs/confluent-schema-registry": "^3.3.0",
-        "kafkajs": "^2.2.4",
-        "ts-node": "^10.9.2"
+        "kafkajs": "^2.2.4"
     },
     "devDependencies": {
         "@types/node": "^20.10.5",
+        "ts-node": "^10.9.2",
         "typescript": "^5.3.3"
     }
 }

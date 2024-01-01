@@ -20,7 +20,7 @@ export class KafkaInstance implements IKafkaInstance {
      * @function producer
      * @returns {ProducerInstance} A Kafka producer instance.
      */
-    producer(): ProducerInstance {
+    public producer(): ProducerInstance {
         return new ProducerInstance({clientId: this._clientId, brokers: this._brokers}, this._schemaRegistryAPIClientArgs);
     }
 
@@ -30,7 +30,7 @@ export class KafkaInstance implements IKafkaInstance {
      * @param {ConsumerConfig} consumerConfig Configuration options for the Kafka consumer.
      * @returns {ConsumerInstance} A Kafka consumer instance.
      */
-    consumer(consumerConfig: ConsumerConfig): ConsumerInstance {
+    public consumer(consumerConfig: ConsumerConfig): ConsumerInstance {
         return new ConsumerInstance({
             clientId: this._clientId,
             brokers: this._brokers},

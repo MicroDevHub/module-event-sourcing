@@ -1,5 +1,5 @@
 {
-    "name": "kafka-event-sourcing",
+    "name": "@micro-dev-hub/kafka-event-sourcing",
     "private": false,
     "version": "1.0.1",
     "description": "This is a package to support process publish and subscribe message. When We work with Kafka event driven.",

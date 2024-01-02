@@ -11,9 +11,10 @@ Getting started
 
 ```shell
 npm install kafka-event-sourcing
+# yarn add kafka-event-sourcing
 ```
 
-- Create publish messages file
+- Create producer
 ```js
 // Example for publish messages
 import { KafkaInstance } from "kafka-event-sourcing";
@@ -68,7 +69,7 @@ const produce = async() => {
 produce();
 ```
 
-- Create subcribe messages file
+- Create consumer
 ```js
 // Example for subcribe messages
 import { EachMessagePayload } from "kafkajs";

@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "lib": ["ESNext"],
+    "target": "esnext",
+    "module": "CommonJS",
+    "outDir": "build",
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleDetection": "force",
+    "esModuleInterop": true,
+    "declaration": true,
+  },
+  "include": [
+    "lib/**/*.ts",
+  ],
+  "exclude": ["node_modules", "build"]
+}

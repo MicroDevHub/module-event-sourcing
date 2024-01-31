@@ -2,17 +2,20 @@ import { Kafka, KafkaConfig, Producer } from "kafkajs";
 import { SchemaRegistry, SchemaType } from "@kafkajs/confluent-schema-registry"
 import { SchemaRegistryAPIClientArgs } from "@kafkajs/confluent-schema-registry/dist/api";
 import { IProducerInstance, IPublishMessage } from "../index";
+import { ILogger, LoggerFactory } from '@micro-dev-hub/module-common-craftsman';
 
 
 export class ProducerInstance implements IProducerInstance{
     private _kafka: Kafka;
     private _producer: Producer;
     private _schemaRegistry: SchemaRegistry;
+    private logger: ILogger;
 
     constructor(kafkaConfig: KafkaConfig, schemaRegistryAPIClientArgs: SchemaRegistryAPIClientArgs) {
         this._kafka = new Kafka(kafkaConfig);
         this._producer = this._kafka.producer();
         this._schemaRegistry = new SchemaRegistry(schemaRegistryAPIClientArgs);
+        this.logger = new LoggerFactory().logger;
     }
 
     /**
@@ -49,7 +52,7 @@ export class ProducerInstance implements IProducerInstance{
                 compression: publishMessages.compression
             })
         } catch (error) {
-            throw new Error(`Send: ${error}`);
+            this.logger.error(`Error producer send ${publishMessages.topic} topic: ${error}`)
         }
     }
     

@@ -29,6 +29,7 @@
     ],
     "dependencies": {
         "@kafkajs/confluent-schema-registry": "^3.3.0",
+        "@micro-dev-hub/module-common-craftsman": "^1.0.4",
         "kafkajs": "^2.2.4"
     },
     "devDependencies": {

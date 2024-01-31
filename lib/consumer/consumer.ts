@@ -2,16 +2,19 @@ import { Consumer, ConsumerConfig, EachMessagePayload, Kafka, KafkaConfig } from
 import { SchemaRegistry } from "@kafkajs/confluent-schema-registry";
 import { SchemaRegistryAPIClientArgs } from "@kafkajs/confluent-schema-registry/dist/api";
 import { IConsumerHandler, IConsumerInstance, IConsumerRunConfig } from "../index";
+import { ILogger, LoggerFactory } from '@micro-dev-hub/module-common-craftsman';
 
 export class ConsumerInstance implements IConsumerInstance{
     private _kafka: Kafka;
     private _consumer: Consumer;
     private _schemaRegistry: SchemaRegistry;
+    private logger: ILogger;
 
     constructor(kafkaConfig: KafkaConfig, consumerConfig: ConsumerConfig, schemaRegistryAPIClientArgs: SchemaRegistryAPIClientArgs) {
         this._kafka = new Kafka(kafkaConfig);
         this._consumer = this._kafka.consumer(consumerConfig);
         this._schemaRegistry = new SchemaRegistry(schemaRegistryAPIClientArgs);
+        this.logger = new LoggerFactory().logger;
     }
 
     /**
@@ -56,7 +59,7 @@ export class ConsumerInstance implements IConsumerInstance{
                        await consumerHandler.handler(payload)
                     }
                 } catch (error) {
-                    console.error('Error processing message:', error);
+                    this.logger.error('Error consumer processing message:', error)
                 }
             },
         })

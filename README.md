@@ -9,15 +9,16 @@ This module facilitates the transmission of messages to the Kafka system, seamle
 Getting started
 ---------------
 
+- Install package
 ```shell
-npm install kafka-event-sourcing
-# yarn add kafka-event-sourcing
+npm install @micro-dev-hub/kafka-event-sourcing
+# yarn add @micro-dev-hub/kafka-event-sourcing  
 ```
 
 - Create producer
 ```js
 // Example for publish messages
-import { KafkaInstance } from "kafka-event-sourcing";
+import { KafkaInstance } from "@micro-dev-hub/kafka-event-sourcing";
 
 const clientId = "my-app";
 const brokers = ["localhost:9092"];
@@ -73,7 +74,7 @@ produce();
 ```js
 // Example for subcribe messages
 import { EachMessagePayload } from "kafkajs";
-import { IConsumerHandler, KafkaInstance } from "kafka-event-sourcing";
+import { IConsumerHandler, KafkaInstance } from "@micro-dev-hub/kafka-event-sourcing";
 
 const clientId = "my-app";
 const brokers = ["localhost:9092"];
@@ -130,7 +131,7 @@ Features
 ---------------
 
 **KafkaInstance**
-- Declare `new KafkaInstance(clientId: string, brokers: string[], schemaRegistryAPIClientArgs: SchemaRegistryAPIClientArgs)`
+- Declare `new KafkaInstance(clientId: string, brokers: string[], schemaRegistryAPIClientArgs: SchemaRegistryAPIClientArgs)`.
 
 - `producer()`: The method will return `ProducerInstance`.
 
@@ -151,3 +152,4 @@ Features
 - `disconnect()`: The method will disconnect to kafka.
 
 - `reads(consumerRunConfig: IConsumerRunConfig, consumerHandlers: IConsumerHandler[])`: The reads method is designed to streamline the process of consuming messages from Kafka topics using the provided Kafka consumer configuration (consumerRunConfig) and an array of consumer handlers (consumerHandlers). The method iterates through each specified topic in the consumerHandlers, subscribes the consumer to those topics, and then initiates the consumer's execution. It allows can customize bussiness logic as user wish.
+

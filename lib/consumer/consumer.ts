@@ -51,12 +51,18 @@ export class ConsumerInstance implements IConsumerInstance{
             ...consumerRunConfig,
             eachMessage: async (payload: EachMessagePayload) => {
                 try {
+                    const value = payload.message.value ? await this._schemaRegistry.decode(payload.message.value) : null
+                    const consumerMessagePayload = {...payload, message: {...payload.message, value: value}}
+
+                    // delete after complete test
+                    console.log(consumerMessagePayload)
+
                     const consumerHandler = consumerHandlers.find((item) => {
                         return item.topics.includes(payload.topic)
                     })
 
                     if(consumerHandler) {
-                       await consumerHandler.handler(payload)
+                       await consumerHandler.handler(consumerMessagePayload)
                     }
                 } catch (error) {
                     this.logger.error('Error consumer processing message:', error)
@@ -77,16 +83,6 @@ export class ConsumerInstance implements IConsumerInstance{
         if(this._consumer) {
             await this._consumer.disconnect();
         }
-    }
-
-    /**
-     * Get schema registry
-     * 
-     * @function consumerSchemaRegistry
-     * @returns {SchemaRegistry}
-     */
-    public getSchemaRegistry(): SchemaRegistry {
-        return this._schemaRegistry;
     }
 
 }

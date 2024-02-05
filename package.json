@@ -1,40 +1,42 @@
 {
-    "name": "@micro-dev-hub/kafka-event-sourcing",
-    "private": false,
-    "version": "1.0.1",
-    "description": "This is a package to support process publish and subscribe message. When We work with Kafka event driven.",
-    "main": "build/index.js",
-    "types": "build/index.d.ts",
-    "scripts": {
-        "build": "tsc",
-        "start-producer": "node build/test-tool/test-producer.js",
-        "start-consumer": "node build/test-tool/test-consumer.js"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/MicroDevHub/module-event-sourcing.git"
-    },
-    "keywords": [
-        "kafka-event-sourcing"
-    ],
-    "author": "Quan Tran",
-    "license": "ISC",
-    "bugs": {
-        "url": "https://github.com/MicroDevHub/module-event-sourcing/issues"
-    },
-    "homepage": "https://github.com/MicroDevHub/module-event-sourcing#readme",
-    "files": [
-        "build",
-        "README.md"
-    ],
-    "dependencies": {
-        "@kafkajs/confluent-schema-registry": "^3.3.0",
-        "@micro-dev-hub/module-common-craftsman": "^1.0.4",
-        "kafkajs": "^2.2.4"
-    },
-    "devDependencies": {
-        "@types/node": "^20.10.5",
-        "ts-node": "^10.9.2",
-        "typescript": "^5.3.3"
-    }
+  "name": "@micro-dev-hub/kafka-event-sourcing",
+  "private": false,
+  "version": "1.0.1",
+  "description": "This is a package to support process publish and subscribe message. When We work with Kafka event driven.",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint --config ./node_modules/@micro-dev-hub/module-common-craftsman/.eslintrc.js \"src/**/*.{js,ts}\"",
+    "lint:fix": "eslint --config ./node_modules/@micro-dev-hub/module-common-craftsman/.eslintrc.js --fix \"src/**/*.{js,ts}\"",
+    "start-producer": "node build/test-tool/test-producer.js",
+    "start-consumer": "node build/test-tool/test-consumer.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MicroDevHub/module-event-sourcing.git"
+  },
+  "keywords": [
+    "kafka-event-sourcing"
+  ],
+  "author": "Quan Tran",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MicroDevHub/module-event-sourcing/issues"
+  },
+  "homepage": "https://github.com/MicroDevHub/module-event-sourcing#readme",
+  "files": [
+    "build",
+    "README.md"
+  ],
+  "dependencies": {
+    "@kafkajs/confluent-schema-registry": "^3.3.0",
+    "@micro-dev-hub/module-common-craftsman": "^1.0.4",
+    "kafkajs": "^2.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
 }

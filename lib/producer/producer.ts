@@ -41,18 +41,19 @@ export class ProducerInstance implements IProducerInstance{
      */
     public async send(publishMessages: IPublishMessage, schema: string): Promise<void> {
         try {
-            const registeredSchema = await this._schemaRegistry.register({type: SchemaType.AVRO, schema})
-            const encodeMessage = await this._schemaRegistry.encode(registeredSchema.id, publishMessages.message.value)
+            const registeredSchema = await this._schemaRegistry.register({type: SchemaType.AVRO, schema});
+            const encodeValue = await this._schemaRegistry.encode(registeredSchema.id, publishMessages.message.value);
 
             await this._producer.send({
                 topic: publishMessages.topic,
-                messages: [{...publishMessages.message,value: encodeMessage}],
+                messages: [{...publishMessages.message, value: encodeValue}],
                 acks: publishMessages.acks,
                 timeout: publishMessages.timeout,
                 compression: publishMessages.compression
             })
+            
         } catch (error) {
-            this.logger.error(`Error producer send ${publishMessages.topic} topic: ${error}`)
+            this.logger.error(`Error producer send ${publishMessages.topic} topic: ${error}`);
         }
     }
     

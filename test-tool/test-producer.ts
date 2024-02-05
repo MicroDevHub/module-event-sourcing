@@ -32,6 +32,7 @@ const produce = async() => {
                 topic: `topic-test-${topicCount}`,
                 message: 
                     {
+                        key: `${i}`,
                         value: {fullName: `Test ${i} in topic-test-${topicCount}`}
                     }
             }, schema);

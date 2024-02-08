@@ -1,5 +1,5 @@
-import { CompressionTypes, ConsumerConfig, EachMessagePayload, IHeaders, MessageSetEntry, RecordBatchEntry } from "kafkajs";
-import { ConsumerInstance, ProducerInstance } from "../index";
+import { CompressionTypes, ConsumerConfig, EachMessagePayload, IHeaders, MessageSetEntry, RecordBatchEntry } from 'kafkajs';
+import { ConsumerInstance, ProducerInstance } from '../index';
 
 /**
  * Represents a Kafka instance, providing methods to create a producer or a consumer.
@@ -16,7 +16,7 @@ export interface IKafkaInstance {
  */
 export interface IMessage {
     key?: Buffer | string | null;
-    value: Buffer | string | Object | null;
+    value: Buffer | string | object | null;
     partition?: number;
     headers?: IHeaders;
     timestamp?: string;
@@ -60,6 +60,7 @@ export interface IConsumerInstance {
  */
 export interface IConsumerHandler {
     topics: string[];
+    schemas: string[];
     fromBeginning: boolean;
     handler: (payload: IEachMessagePayload) => Promise<void>;
 }
@@ -76,16 +77,34 @@ export interface IConsumerRunConfig {
     partitionsConsumedConcurrently?: number;
 }
 
+/**
+ * Represents an entry in a message set, extending the MessageSetEntry interface.
+ *
+ * @interface IMessageSetEntry
+ * @extends {Omit<MessageSetEntry, 'value' | 'key'>}
+ */
 export interface IMessageSetEntry extends Omit<MessageSetEntry, 'value' | 'key'> {
     key: string | Buffer|  null;
     value: string | Buffer | JSON | null;
 }
 
+/**
+ * Represents an entry in a record batch, extending the RecordBatchEntry interface.
+ *
+ * @interface IRecordBatchEntry
+ * @extends {Omit<RecordBatchEntry, 'value' | 'key'>}
+ */
 export interface IRecordBatchEntry extends Omit<RecordBatchEntry, 'value' | 'key'> {
     key: string | Buffer | null;
     value: string | Buffer | JSON | null;
 }
 
+/**
+ * Represents a payload for each message, extending the EachMessagePayload interface.
+ *
+ * @interface IEachMessagePayload
+ * @extends {Omit<EachMessagePayload, 'message'>}
+ */
 export interface IEachMessagePayload extends Omit<EachMessagePayload, 'message'> {
     message: IMessageSetEntry | IRecordBatchEntry;
 }

@@ -66,6 +66,17 @@ export interface IConsumerHandler {
 }
 
 /**
+ * Represents a mapping for a consumer handler.
+ *
+ * @interface IConsumerHandlerMapping
+ */
+export interface IConsumerHandlerMapping {
+    fingerprintIds: number[];
+    topics: string[];
+    handler: (payload: IEachMessagePayload) => Promise<void>;
+}
+
+/**
  * Represents configuration options for running a Kafka consumer.
  * @interface IConsumerRunConfig
  */
@@ -103,8 +114,9 @@ export interface IRecordBatchEntry extends Omit<RecordBatchEntry, 'value' | 'key
  * Represents a payload for each message, extending the EachMessagePayload interface.
  *
  * @interface IEachMessagePayload
- * @extends {Omit<EachMessagePayload, 'message'>}
  */
-export interface IEachMessagePayload extends Omit<EachMessagePayload, 'message'> {
+export interface IEachMessagePayload  {
+    topic: string;
+    partition: number;
     message: IMessageSetEntry | IRecordBatchEntry;
 }

@@ -1,7 +1,7 @@
 import { Consumer, ConsumerConfig, EachMessagePayload, Kafka, KafkaConfig } from 'kafkajs';
 import { SchemaRegistry } from '@kafkajs/confluent-schema-registry';
 import { SchemaRegistryAPIClientArgs } from '@kafkajs/confluent-schema-registry/dist/api';
-import { IConsumerHandler, IConsumerInstance, IConsumerRunConfig } from '../index';
+import { IConsumerHandler, IConsumerHandlerMapping, IConsumerInstance, IConsumerRunConfig } from '../index';
 import { ILogger, LoggerFactory } from '@micro-dev-hub/module-common-craftsman';
 
 export class ConsumerInstance implements IConsumerInstance {
@@ -9,6 +9,7 @@ export class ConsumerInstance implements IConsumerInstance {
   private _consumer: Consumer;
   private _schemaRegistry: SchemaRegistry;
   private logger: ILogger;
+  private _consumerHandlerMappings: IConsumerHandlerMapping[];
 
   constructor(
     kafkaConfig: KafkaConfig,
@@ -19,6 +20,7 @@ export class ConsumerInstance implements IConsumerInstance {
     this._consumer = this._kafka.consumer(consumerConfig);
     this._schemaRegistry = new SchemaRegistry(schemaRegistryAPIClientArgs);
     this.logger = new LoggerFactory().logger;
+    this._consumerHandlerMappings = [];
   }
 
   /**
@@ -42,8 +44,10 @@ export class ConsumerInstance implements IConsumerInstance {
    * @param {IConsumerHandler[]} consumerHandlers
    * @returns {Promise<void>}
    */
-  public async reads(consumerRunConfig: IConsumerRunConfig, consumerHandlers: IConsumerHandler[]): Promise<void> {
-
+  public async reads(
+    consumerRunConfig: IConsumerRunConfig,
+    consumerHandlers: IConsumerHandler[]
+  ): Promise<void> {
     // Subcribe all topics in consumerHandlers
     consumerHandlers.forEach(async (item) => {
       this._consumer.subscribe({
@@ -52,80 +56,65 @@ export class ConsumerInstance implements IConsumerInstance {
       });
     });
 
+    this._consumerHandlerMappings = await this.getConsumerHandlerMapping(consumerHandlers);
+
     await this._consumer.run({
       ...consumerRunConfig,
       eachMessage: async (payload: EachMessagePayload) => {
         try {
-          await this.getConsumerHandler(payload, consumerHandlers);
+            const consumerHandlers = this._consumerHandlerMappings.filter((handlerMapping) => handlerMapping.topics.includes(payload.topic)
+                && (handlerMapping.fingerprintIds.includes(Number(payload.message.headers?.fingerprintId)) 
+                || handlerMapping.fingerprintIds.length === 0))
+
+            const value = payload.message.value
+              ? await this._schemaRegistry.decode(payload.message.value)
+              : null;
+
+            const consumerMessagePayload = {
+              topic: payload.topic,
+              partition: payload.partition,
+              message: { ...payload.message, value: value },
+            };
+            
+            for (const consumerHandler of consumerHandlers) {
+              await consumerHandler.handler(consumerMessagePayload);
+            }
         } catch (error) {
-          this.logger.error('Error consumer processing message:', error);
+          this.logger.error("Error consumer processing message:", error);
         }
       },
     });
   }
 
-  /**
-   * Get Consumer Handler after callback handler function
-   *
-   * @async
-   * @function getConsumerHandler
-   * @param {EachMessagePayload} payload
-   * @param {IConsumerHandler[]} consumerHandlers
-   * @returns {Promise<void>}
-   */
-  private async getConsumerHandler(payload: EachMessagePayload, consumerHandlers: IConsumerHandler[]): Promise<void> {
-    try {
-      const consumerHandlerCustomize = await Promise.all(
+  private async getConsumerHandlerMapping(
+    consumerHandlers: IConsumerHandler[]
+  ): Promise<Array<IConsumerHandlerMapping>> {
+    return await Promise.all(
+      consumerHandlers.map(async (handler) => {
+        let fingerprintIds: number[] = [];
 
-        consumerHandlers.map(async (item) => {
-          let fingerprintIds: number[] = [];
+        if (handler.schemas.length > 0) {
 
-          if (item.schemas.length > 0) {
-            fingerprintIds = await Promise.all(
-                    
-              item.schemas.map(async (schema) => {
-                try {
-                  return await this._schemaRegistry.getRegistryId(schema, 1);
-                } catch (error) {
-                  this.logger.warn(`The ${schema} schema is not exist.`);
-                }
-              })
-            ) as number[];
-          }
-
-          return { ...item, fingerprintIds: fingerprintIds.filter(Boolean) };
-        })
-      );
-
-      const value = payload.message.value
-        ? await this._schemaRegistry.decode(payload.message.value)
-        : null;
-
-      const consumerMessagePayload = {
-        ...payload,
-        message: { ...payload.message, value: value },
-      };
-
-      const consumerHandler = consumerHandlerCustomize.find((item) => {
-        if (item && item.fingerprintIds.length > 0) {
-          return (
-            item.topics.includes(payload.topic) &&
-            item.fingerprintIds.includes(
-              Number(payload.message.headers?.fingerprintId)
-            )
-          );
-        } else {
-          return item?.topics.includes(payload.topic);
+          fingerprintIds = (await Promise.all(
+            handler.schemas.map(async (schemaName) => {
+              try {
+                return await this._schemaRegistry.getRegistryId(schemaName, 1);
+              } catch (error) {
+                this.logger.error(`The ${schemaName} schema is not exist.`);
+                throw new Error(`The ${schemaName} schema is not exist.`);
+              }
+            })
+          )) as number[];
+          
         }
-      });
 
-      if (consumerHandler) {
-        await consumerHandler.handler(consumerMessagePayload);
-      }
-      
-    } catch (error) {
-      this.logger.error('Error get consumer handler:', error);
-    }
+        return {
+          fingerprintIds: fingerprintIds.filter(Boolean),
+          topics: handler.topics,
+          handler: handler.handler,
+        };
+      })
+    );
   }
 
   /**
